@@ -1,0 +1,8 @@
+.idea
+.gitignore
+.npmignore
+typings
+index.ts
+StreamToPromise.ts
+tsd.json
+tsconfig.json

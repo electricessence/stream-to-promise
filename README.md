@@ -1,31 +1,40 @@
-stream-to-promise [![Build Status](https://travis-ci.org/bendrucker/stream-to-promise.svg)](https://travis-ci.org/bendrucker/stream-to-promise) [![NPM version](https://badge.fury.io/js/stream-to-promise.svg)](http://badge.fury.io/js/stream-to-promise)
-=================
+stream-to-promise-agnostic
+==========================
+(Built using TypeScript. Type declarations are embedded.)
 
-Convert streams (readable or writable) to promises
+Convert streams (readable or writable) to promises using your own standard Promise library.
 
+### Usage
 
-```js
-streamToPromise(readableStream).then(function (buffer) {
-  // buffer.length === 3
+#### Step 1: Import
+
+```ts
+import Promise from 'bluebird; // Or any promise like library of your choice.  
+import streamToPromise from 'stream-to-promise-agnostic';
+const convert = streamToPromise(Promise);
+```
+
+```streamToPromise``` takes any ```PromiseConstructorLike``` (see lib.d.ts) constructor.
+
+#### Step 2: Consume
+
+###### Readable
+```ts
+convert.toPromise(readableStream).then(array=> {
+  // array.length === 3
 });
-readableStream.emit('data', new Buffer());
-readableStream.emit('data', new Buffer());
-readableStream.emit('data', new Buffer());
+readableStream.emit('data', 1);
+readableStream.emit('data', 2);
+readableStream.emit('data', 3);
 readableStream.emit('end'); // promise is resolved here
 ```
 
-```js
-streamToPromise(writableStream).then(function () {
+###### Writable
+```ts
+convert.toPromise(writableStream).then(()=> {
   // resolves undefined
 });
 writableStream.write('data');
-writeableStream.end(); // promise is resolved here
+writableStream.end(); // promise is resolved here
 ```
 
-```js
-var err = new Error();
-streamToPromise(stream).catch(function (error) {
-  // error === err;
-});
-stream.emit('error', err); // promise is rejected here
-```
