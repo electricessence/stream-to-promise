@@ -1,6 +1,6 @@
 {
   "name": "stream-to-promise-agnostic",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Convert streams (readable or writable) to promises using your own standard Promise library.",
   "main": "index.js",
   "repository": {
@@ -14,9 +14,5 @@
     "typscript"
   ],
   "author": "electricessence <npm@electrified.net>",
-  "license": "MIT",
-  "files": [
-    "index.js",
-    "StreamToPromise.js"
-  ]
+  "license": "MIT"
 }

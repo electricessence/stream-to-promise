@@ -15,11 +15,11 @@ var StreamEvents;
 Object.freeze(StreamEvents);
 var StreamToPromise = (function () {
     // Expose DI to allow consumer to chose their own promise lib.
-    function StreamToPromise(_Promise) {
-        this._Promise = _Promise;
+    function StreamToPromise(_promiseFactory) {
+        this._promiseFactory = _promiseFactory;
     }
     StreamToPromise.prototype.toArray = function (stream) {
-        return new this._Promise(function (resolve, reject) {
+        return this._promiseFactory(function (resolve, reject) {
             // stream is already ended
             if (!stream.readable)
                 return resolve([]);
@@ -56,7 +56,7 @@ var StreamToPromise = (function () {
             return this.fromReadable(stream);
         if (stream.writable)
             return this.fromWritable(stream);
-        return new this._Promise(function (resolve) { return resolve(); });
+        return this._promiseFactory(function (resolve) { return resolve(); });
     };
     StreamToPromise.prototype.fromReadable = function (stream) {
         var promise = this.toArray(stream);
@@ -66,7 +66,7 @@ var StreamToPromise = (function () {
         return promise;
     };
     StreamToPromise.prototype.fromWritable = function (stream) {
-        return new this._Promise(function (resolve, reject) {
+        return this._promiseFactory(function (resolve, reject) {
             stream.once('finish', resolve);
             stream.once('error', reject);
         });

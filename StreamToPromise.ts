@@ -20,18 +20,27 @@ export module StreamEvents
 }
 Object.freeze(StreamEvents);
 
+export interface Executor<T>
+{
+	(resolve:(value?:T | PromiseLike<T>) => void, reject:(reason?:any) => void):void;
+}
+
+export interface PromiseFactory {
+	<T>(executor:Executor<T>):PromiseLike<T>;
+}
+
 export class StreamToPromise
 {
 
 	// Expose DI to allow consumer to chose their own promise lib.
-	constructor(private _Promise:PromiseConstructorLike)
+	constructor(private _promiseFactory:PromiseFactory)
 	{
 	}
 
 
 	toArray<T>(stream:ReadableStream):PromiseLike<T[]>
 	{
-		return new this._Promise<T[]>((resolve, reject)=>
+		return this._promiseFactory<T[]>((resolve, reject)=>
 		{
 			// stream is already ended
 			if(!stream.readable) return resolve([]);
@@ -79,7 +88,7 @@ export class StreamToPromise
 	{
 		if(stream.readable) return this.fromReadable(stream);
 		if(stream.writable) return this.fromWritable(stream);
-		return new this._Promise(resolve=>resolve());
+		return this._promiseFactory(resolve=>resolve());
 	}
 
 	private fromReadable<T>(stream:ReadableStream):PromiseLike<T[]>
@@ -94,7 +103,7 @@ export class StreamToPromise
 
 	private fromWritable(stream:WritableStream):PromiseLike<void>
 	{
-		return new this._Promise<void>((resolve, reject)=>
+		return this._promiseFactory<void>((resolve, reject)=>
 		{
 			stream.once('finish', resolve);
 			stream.once('error', reject);

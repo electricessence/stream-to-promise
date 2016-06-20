@@ -12,9 +12,15 @@ export declare module StreamEvents {
     const ERROR: string;
     const CLOSE: string;
 }
+export interface Executor<T> {
+    (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void): void;
+}
+export interface PromiseFactory {
+    <T>(executor: Executor<T>): PromiseLike<T>;
+}
 export declare class StreamToPromise {
-    private _Promise;
-    constructor(_Promise: PromiseConstructorLike);
+    private _promiseFactory;
+    constructor(_promiseFactory: PromiseFactory);
     toArray<T>(stream: ReadableStream): PromiseLike<T[]>;
     toPromise<T>(stream: ReadableStream | ReadWriteStream): PromiseLike<T>;
     toPromise(stream: WritableStream): PromiseLike<void>;

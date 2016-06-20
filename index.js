@@ -5,8 +5,12 @@
  */
 "use strict";
 var StreamToPromise_1 = require("./StreamToPromise");
-function streamToPromise(Promise) {
-    return new StreamToPromise_1.StreamToPromise(Promise);
+function streamToPromise(PromiseFactory, isConstructor) {
+    if (isConstructor)
+        PromiseFactory = function (executor) { return new PromiseFactory(executor); };
+    return new StreamToPromise_1.StreamToPromise(PromiseFactory);
 }
-module.exports = streamToPromise;
+exports.streamToPromise = streamToPromise;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = streamToPromise;
 //# sourceMappingURL=index.js.map

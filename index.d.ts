@@ -3,6 +3,7 @@
  * @license MIT
  * Converted to typescript from stream-to-array and stream-to-promise
  */
-import { StreamToPromise } from "./StreamToPromise";
-declare function streamToPromise(Promise: PromiseConstructorLike): StreamToPromise;
-export = streamToPromise;
+import { StreamToPromise, PromiseFactory } from "./StreamToPromise";
+export declare function streamToPromise(PromiseFactory: PromiseFactory): StreamToPromise;
+export declare function streamToPromise(PromiseFactory: PromiseConstructorLike | PromiseFactory, isConstructor?: boolean): StreamToPromise;
+export default streamToPromise;
