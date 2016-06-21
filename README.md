@@ -8,13 +8,24 @@ Convert streams (readable or writable) to promises using your own standard Promi
 
 #### Step 1: Import
 
+##### Using an ES6 style compatible Promise library 
 ```ts
-import Promise from 'bluebird; // Or any promise like library of your choice.  
+import Promise from 'bluebird; // Or any constructor compatible promise like library of your choice.  
 import streamToPromise from 'stream-to-promise-agnostic';
-const convert = streamToPromise(Promise);
-```
 
-```streamToPromise``` takes any ```PromiseConstructorLike``` (see lib.d.ts) constructor.
+const convert = streamToPromise(Promise,true); // 'true' indicates a Promise constructor
+```
+```streamToPromise``` can take any ```PromiseConstructorLike``` (see lib.d.ts) constructor when the second param equals ```true```
+
+##### Using a Promise library that doesn't have a constructor (Example: Q)
+```ts 
+import {streamToPromise,PromiseFactory,Executor} from 'stream-to-promise-agnostic';
+const QPromiseFactory:PromiseFactory = <T>(e:Executor<T>)=>require("q").promise(e);
+
+const convert = streamToPromise(QPromiseFactory);
+``` 
+
+
 
 #### Step 2: Consume
 

@@ -1,6 +1,6 @@
 {
   "name": "stream-to-promise-agnostic",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Convert streams (readable or writable) to promises using your own standard Promise library.",
   "main": "index.js",
   "repository": {
