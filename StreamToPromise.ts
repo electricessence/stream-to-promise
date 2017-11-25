@@ -4,8 +4,6 @@
  * Converted to typescript from stream-to-array and stream-to-promise
  */
 
-///<reference path="./typings/node/node" />
-
 import ReadableStream = NodeJS.ReadableStream;
 import WritableStream = NodeJS.WritableStream;
 import ReadWriteStream = NodeJS.ReadWriteStream;
@@ -29,6 +27,9 @@ export interface PromiseFactory {
 	<T>(executor:Executor<T>):PromiseLike<T>;
 }
 
+export { ReadableStream, ReadWriteStream, WritableStream }
+export type Stream = ReadableStream | ReadWriteStream| WritableStream;
+
 export class StreamToPromise
 {
 
@@ -45,7 +46,7 @@ export class StreamToPromise
 			// stream is already ended
 			if(!stream.readable) return resolve([]);
 
-			var result:T[] = [];
+			let result:T[] = [];
 
 			stream.on(_DATA, onData);
 			stream.on(_END, onEnd);
@@ -82,18 +83,45 @@ export class StreamToPromise
 	}
 
 
+	/**
+	 * Converts a stream into a respective promise.
+	 * Can take an array of streams and will execute them in sequence and resolve when complete or reject if any fail.
+	 * @param {NodeJS.ReadableStream | NodeJS.ReadWriteStream} stream
+	 * @returns {PromiseLike<T>}
+	 */
 	toPromise<T>(stream:ReadableStream|ReadWriteStream):PromiseLike<T>
 	toPromise(stream:WritableStream):PromiseLike<void>
+	toPromise(stream:Stream):PromiseLike<void>
+	toPromise(streams:Stream[]):PromiseLike<void>
 	toPromise(stream:any):PromiseLike<any>
 	{
-		if(stream.readable) return this.fromReadable(stream);
-		if(stream.writable) return this.fromWritable(stream);
-		return this._promiseFactory(resolve=>resolve());
+		const _ = this;
+		if(stream instanceof Array)
+		{
+			return _._promiseFactory((resolve,reject)=>
+			{
+				const streams = <Stream[]>stream;
+
+				let i = 0;
+				function next()
+				{
+					if(i<streams.length)
+						_.toPromise(streams[i++]).then(next, reject);
+					else
+						resolve();
+				}
+
+				next();
+			});
+		}
+		if(stream.readable) return _.fromReadable(stream);
+		if(stream.writable) return _.fromWritable(stream);
+		return _._promiseFactory(resolve=>resolve());
 	}
 
 	private fromReadable<T>(stream:ReadableStream):PromiseLike<T[]>
 	{
-		var promise = this.toArray<T>(stream);
+		const promise = this.toArray<T>(stream);
 
 		// Ensure stream is in flowing mode
 		if(stream.resume) stream.resume();

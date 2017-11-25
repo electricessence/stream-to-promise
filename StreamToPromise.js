@@ -1,9 +1,10 @@
+"use strict";
 /*!
  * @author electricessence / https://github.com/electricessence/
  * @license MIT
  * Converted to typescript from stream-to-array and stream-to-promise
  */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var _DATA = 'data', _END = 'end', _ERROR = 'error', _CLOSE = 'close';
 var StreamEvents;
 (function (StreamEvents) {
@@ -13,7 +14,7 @@ var StreamEvents;
     StreamEvents.CLOSE = _CLOSE;
 })(StreamEvents = exports.StreamEvents || (exports.StreamEvents = {}));
 Object.freeze(StreamEvents);
-var StreamToPromise = (function () {
+var StreamToPromise = /** @class */ (function () {
     // Expose DI to allow consumer to chose their own promise lib.
     function StreamToPromise(_promiseFactory) {
         this._promiseFactory = _promiseFactory;
@@ -52,11 +53,25 @@ var StreamToPromise = (function () {
         });
     };
     StreamToPromise.prototype.toPromise = function (stream) {
+        var _ = this;
+        if (stream instanceof Array) {
+            return _._promiseFactory(function (resolve, reject) {
+                var streams = stream;
+                var i = 0;
+                function next() {
+                    if (i < streams.length)
+                        _.toPromise(streams[i++]).then(next, reject);
+                    else
+                        resolve();
+                }
+                next();
+            });
+        }
         if (stream.readable)
-            return this.fromReadable(stream);
+            return _.fromReadable(stream);
         if (stream.writable)
-            return this.fromWritable(stream);
-        return this._promiseFactory(function (resolve) { return resolve(); });
+            return _.fromWritable(stream);
+        return _._promiseFactory(function (resolve) { return resolve(); });
     };
     StreamToPromise.prototype.fromReadable = function (stream) {
         var promise = this.toArray(stream);
@@ -74,6 +89,5 @@ var StreamToPromise = (function () {
     return StreamToPromise;
 }());
 exports.StreamToPromise = StreamToPromise;
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StreamToPromise;
 //# sourceMappingURL=StreamToPromise.js.map
